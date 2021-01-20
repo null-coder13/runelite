@@ -26,6 +26,9 @@ import java.util.regex.Pattern;
 public class AverageKillPlugin extends Plugin
 {
     private static final Pattern KILL_MESSAGE = Pattern.compile("Fight duration: (\\d+):(\\d+)\\. Personal best: (\\d+):(\\d+)");
+    private static final Pattern BOSS_NAME = Pattern.compile("Your (\\w+\\s?\\w+?) kill count is: (\\d+)\\.");
+    private int savedTime = 0;
+    private AverageBoss garg = new AverageBoss("", 0, 0);
 
     @Inject
     private Client client;
@@ -43,11 +46,28 @@ public class AverageKillPlugin extends Plugin
 
         String message = Text.removeTags(event.getMessage());
         Matcher matcher = KILL_MESSAGE.matcher(message);
+        Matcher bossMatcher = BOSS_NAME.matcher(message);
+
+        if (bossMatcher.matches())
+        {
+            garg.setBoss(bossMatcher.group(1));
+            garg.addTime(this.savedTime);
+            garg.addKill();
+            System.out.println("Boss name: " + garg.getBoss() + ", Average Time: " + garg.averageTime() + ", Kills: " + garg.getKillCount());
+        }
 
         if (matcher.matches())
         {
-            //TODO: Figure out how to convert time maybe new method
-            int test1 = Integer.parseInt(matcher.group(2));
+            int minutes = Integer.parseInt(matcher.group(1)) * 60;
+            int seconds = Integer.parseInt(matcher.group(2));
+            int timeInSeconds = minutes + seconds;
+            System.out.println("The timeInSeconds is: " + timeInSeconds);
         }
+    }
+
+    public int checkBoss()
+    {
+        //Check what boss is being killed. Maybe another plugin checks this somehow
+        return 0;
     }
 }
